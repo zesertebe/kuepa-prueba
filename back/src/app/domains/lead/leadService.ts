@@ -296,11 +296,11 @@ class LeadService {
 
       let leads = await Lead.find(where)
         .sort({ created_at: -1 })
-        .populate({
-          path: "contact",
-          select: "first_name last_name document number",
-          options: { lean: true },
-        })
+        // .populate({
+        //   path: "leads",
+        //   select: "first_name last_name document number",
+        //   options: { lean: true },
+        // })
         .limit(100)
         .lean();
 
@@ -328,7 +328,7 @@ class LeadService {
     try {
       const lead = await Lead.findOne({ _id: _params._id })
         .populate({
-          path: "contact",
+          path: "leads",
           select: "first_name last_name incremental document number",
           options: { lean: true },
         })
@@ -355,4 +355,3 @@ class LeadService {
 
 export const leadService = new LeadService();
 export { LeadService };
-

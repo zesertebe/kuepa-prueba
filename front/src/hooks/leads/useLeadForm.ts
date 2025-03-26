@@ -4,19 +4,26 @@ import { useEffect, useState } from "react";
 
 export const useLeadForm = () => {
   const lead_: Partial<LeadType> = {
-    email: "email@si.com",
-    first_name: "pepe",
-    full_name: "pepe lechuga",
+    email: "",
+    first_name: "",
+    full_name: "",
     interestProgram: "",
-    last_name: "lechuga",
-    mobile_phone: "3303030030",
-    status: "active",
+    last_name: "",
+    mobile_phone: "",
+    status: "inactive",
   };
   const [lead, setLead] = useState<Partial<LeadType>>(lead_);
   useEffect(() => {}, []);
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log("lead: ", lead);
+    const result = await leadService.create({ data: lead });
+    console.log("que pasa: ", result);
+    if (result.code == 200 && result.status === "success") {
+      setLead(lead_);
+      return true;
+    }
+    return false;
   };
   return { lead, handleSubmit, setLead };
 };

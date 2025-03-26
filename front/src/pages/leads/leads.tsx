@@ -1,5 +1,5 @@
 import { app } from "@/atoms/kuepa";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLeads } from "@/hooks/leads/useLeads";
 import { LeadType } from "@/types/leads/lead";
@@ -39,6 +39,7 @@ import {
 import { ProgramType } from "@/types/programs/program";
 import { usePrograms } from "@/hooks/programs/usePrograms";
 import { useLeadForm } from "@/hooks/leads/useLeadForm";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export interface LeadsProps {}
 
@@ -47,8 +48,10 @@ export default function Leads(props?: LeadsProps) {
   console.log("props: ", props);
   const programs: ProgramType[] = usePrograms().programs;
   console.log("los programas: ", programs);
-  const leads: LeadType[] = useLeads().leads;
+  const [error, setError] = useState(null);
+  const { leads, fetchLeads } = useLeads();
   const { handleSubmit, lead, setLead } = useLeadForm();
+  const [openDialog, setOpenDialog] = useState(false);
   console.log("a ver leads: ", leads);
   useEffect(() => {
     app.set({
@@ -69,19 +72,34 @@ export default function Leads(props?: LeadsProps) {
   return (
     <>
       <h1 className="flex text-4xl font-title text-purple-800">Prospectos</h1>
+      {error && (
+        <Alert variant="destructive" className="mb-3">
+          <AlertTitle className="group-hover:text-red-700">Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       <TableHead>
-        <Dialog>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild={true}>
             <Button>Agregar +</Button>
           </DialogTrigger>
-          <DialogPortal>
-            <DialogOverlay />
-            <DialogContent>
-              <DialogTitle>Agregar Nuevo Prospecto</DialogTitle>
-              <DialogDescription>
-                Agregue todos los datos del nuevo prospecto y luego haga clic en
-                "Guardar"
-              </DialogDescription>
+          <DialogContent>
+            <DialogTitle>Agregar Nuevo Prospecto</DialogTitle>
+            <DialogDescription>
+              Agregue todos los datos del nuevo prospecto y luego haga clic en
+              "Guardar"
+            </DialogDescription>
+            <form
+              onSubmit={async (event) => {
+                const response = await handleSubmit(event);
+                if (response) {
+                  fetchLeads();
+                  setOpenDialog(false);
+                } else {
+                  setError("Error Al crear el prospecto");
+                }
+              }}
+            >
               <fieldset>
                 <label>Nombre</label>
                 <Input
@@ -136,22 +154,17 @@ export default function Leads(props?: LeadsProps) {
               </fieldset>
               <fieldset>
                 <label>Estado</label>
-                <Select value={lead.status}>
-                  <SelectTrigger
-                    autoFocus={false}
-                    onFocus={(e) => e.preventDefault()}
-                  >
-                    <SelectValue
-                      placeholder="Seleccione.."
-                      autoFocus={false}
-                      onFocus={(e) => e.preventDefault()}
-                    />
+                <Select
+                  value={lead.status}
+                  onValueChange={(v: "active" | "inactive") =>
+                    setLead({ ...lead, status: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione.." />
                   </SelectTrigger>
                   <SelectPortal>
-                    <SelectContent
-                      autoFocus={false}
-                      onFocus={(e) => e.preventDefault()}
-                    >
+                    <SelectContent>
                       <SelectViewport>
                         <SelectItem value="active">Activo</SelectItem>
                         <SelectItem value="inactive">Inactivo</SelectItem>
@@ -162,24 +175,24 @@ export default function Leads(props?: LeadsProps) {
               </fieldset>
               <fieldset>
                 <label>Programa</label>
-                <Select value={lead.interestProgram}>
+                <Select
+                  value={lead.interestProgram}
+                  onValueChange={(v) =>
+                    setLead({ ...lead, interestProgram: v })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione.." />
                   </SelectTrigger>
-                  <SelectPortal>
-                    <SelectContent>
-                      <SelectViewport>
-                        {programs.map((program) => (
-                          <SelectItem
-                            key={program["_id"]}
-                            value={program["_id"]}
-                          >
-                            {program.name}
-                          </SelectItem>
-                        ))}
-                      </SelectViewport>
-                    </SelectContent>
-                  </SelectPortal>
+                  <SelectContent>
+                    <SelectViewport>
+                      {programs.map((program) => (
+                        <SelectItem key={program["_id"]} value={program["_id"]}>
+                          {program.name}
+                        </SelectItem>
+                      ))}
+                    </SelectViewport>
+                  </SelectContent>
                 </Select>
               </fieldset>
               <DialogFooter>
@@ -187,14 +200,13 @@ export default function Leads(props?: LeadsProps) {
                   Guardar
                 </Button>
               </DialogFooter>
-            </DialogContent>
-          </DialogPortal>
+            </form>
+          </DialogContent>
         </Dialog>
       </TableHead>
       <Table about="vomo" title="Lista de Prospectos">
         <TableHeader className="text-red-500 font-extrabold">
           <TableRow>
-            <TableCell>Nombre Completo</TableCell>
             <TableCell>Primer Nombre</TableCell>
             <TableCell>Apellidos</TableCell>
             <TableCell>Email</TableCell>
@@ -205,17 +217,24 @@ export default function Leads(props?: LeadsProps) {
         </TableHeader>
         <TableBody>
           {leads &&
-            leads.map((lead) => (
-              <TableRow key={lead.incremental}>
-                <TableCell>{lead.full_name}</TableCell>
-                <TableCell>{lead.first_name}</TableCell>
-                <TableCell>{lead.last_name}</TableCell>
-                <TableCell>{lead.email}</TableCell>
-                <TableCell>{lead.mobile_phone}</TableCell>
-                <TableCell>{lead.status}</TableCell>
-                <TableCell>{lead.interestProgram}</TableCell>
-              </TableRow>
-            ))}
+            leads.map((lead) => {
+              const program_ = programs.find(
+                (i) => i["_id"] == lead.interestProgram,
+              );
+              console.log("program_ ?: ", program_);
+              return (
+                <TableRow key={lead.incremental}>
+                  <TableCell>{lead.first_name}</TableCell>
+                  <TableCell>{lead.last_name}</TableCell>
+                  <TableCell>{lead.email}</TableCell>
+                  <TableCell>{lead.mobile_phone}</TableCell>
+                  <TableCell>{lead.status}</TableCell>
+                  <TableCell>
+                    {program_ ? program_["name"] : "No encontrado"}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
         </TableBody>
       </Table>
     </>
