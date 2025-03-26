@@ -18,8 +18,8 @@ Estos son los archivo en donde hice cambios:
 - Rutas para program: **back/src/app/domains/program/programRoute.ts**
 - Seeder para program: **back/src/core/seeders/initSeeder.ts**
 
-> [!NOTE]\
-> En el formulario de creación de un prospecto se utiliza un select con el componente select de la libreria radix.
-> Sin embargo este select arroja algunos errores cuando se utiliza. No tuve tiempo para revisar el porqué pero debería
-> ser corregido en algún momento. A pesar de eso los valores se seleccionan correctamente. 
+
+## Resumen
+Se agregó la capacidad de crear un prospecto mediante un formulario  y se creó una tabla donde se pueden ver los diferentes prospectos
+Se agregó soporte para listar programas.
 

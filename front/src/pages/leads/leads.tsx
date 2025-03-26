@@ -223,7 +223,10 @@ export default function Leads(props?: LeadsProps) {
               );
               console.log("program_ ?: ", program_);
               return (
-                <TableRow key={lead.incremental}>
+                <TableRow
+                  key={lead.incremental}
+                  className={lead.status == "inactive" ? "bg-red-300" : ""}
+                >
                   <TableCell>{lead.first_name}</TableCell>
                   <TableCell>{lead.last_name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
