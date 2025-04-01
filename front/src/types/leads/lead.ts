@@ -6,6 +6,8 @@ export type LeadType = {
   first_name: string;
   last_name: string;
   email: string;
+  age: number;
+  level: "Principiante" | "Avanzado";
   mobile_phone: string;
   interestProgram: string;
   status: "active" | "inactive";

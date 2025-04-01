@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 export const useLeadForm = () => {
   const lead_: Partial<LeadType> = {
     email: "",
+    age: 0,
+    level: "Principiante",
     first_name: "",
     full_name: "",
     interestProgram: "",

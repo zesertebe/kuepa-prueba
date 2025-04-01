@@ -130,6 +130,19 @@ export default function Leads(props?: LeadsProps) {
                 <label>Nombres Completos</label>
                 <Input value={lead.full_name} disabled={true}></Input>
               </fieldset>
+
+              <fieldset>
+                <label>Edad</label>
+                <Input
+                  value={lead.age}
+                  onChange={(v) =>
+                    setLead({
+                      ...lead,
+                      age: parseInt(v.target.value),
+                    })
+                  }
+                ></Input>
+              </fieldset>
               <fieldset>
                 <label>Email</label>
                 <Input
@@ -151,6 +164,29 @@ export default function Leads(props?: LeadsProps) {
                     setLead({ ...lead, mobile_phone: v.target.value })
                   }
                 />
+              </fieldset>
+              <fieldset>
+                <label>Nivel</label>
+                <Select
+                  value={lead.level}
+                  onValueChange={(v: LeadType["level"]) =>
+                    setLead({ ...lead, level: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione.." />
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectContent>
+                      <SelectViewport>
+                        <SelectItem value="Principiante">
+                          Principiante
+                        </SelectItem>
+                        <SelectItem value="Avanzado">Avanzado</SelectItem>
+                      </SelectViewport>
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
               </fieldset>
               <fieldset>
                 <label>Estado</label>
@@ -210,6 +246,8 @@ export default function Leads(props?: LeadsProps) {
             <TableCell>Primer Nombre</TableCell>
             <TableCell>Apellidos</TableCell>
             <TableCell>Email</TableCell>
+            <TableCell>Edad</TableCell>
+            <TableCell>Nivel</TableCell>
             <TableCell>Numero de telefono</TableCell>
             <TableCell>Estado</TableCell>
             <TableCell>Programa de interes</TableCell>
@@ -230,6 +268,8 @@ export default function Leads(props?: LeadsProps) {
                   <TableCell>{lead.first_name}</TableCell>
                   <TableCell>{lead.last_name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
+                  <TableCell>{lead.age}</TableCell>
+                  <TableCell>{lead.level}</TableCell>
                   <TableCell>{lead.mobile_phone}</TableCell>
                   <TableCell>{lead.status}</TableCell>
                   <TableCell>
